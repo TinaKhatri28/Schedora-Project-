@@ -2,9 +2,9 @@
   "name": "schedulr-backend",
   "version": "1.0.0",
   "scripts": {
-    "postinstall": "npx prisma generate",
+    
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "build": "tsc",
+    "build": "npx prisma generate && tsc",
     "start": "node dist/index.js",
     "db:migrate": "npx prisma migrate dev",
     "db:seed": "ts-node prisma/seed.ts",
