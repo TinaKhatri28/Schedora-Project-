@@ -128,11 +128,8 @@ function getTokenConfig(provider: string, code: string, origin: string) {
 
 // ─── Route handler ────────────────────────────────────────────────────────────
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { provider: string } }
-) {
-  const { provider } = params;
+export async function GET(request: NextRequest, { params }: { params: Promise<{ provider: string }> }) {
+  const { provider } = await params;
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');
   const error = searchParams.get('error');
