@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String         @id @default(cuid())
+  name           String
+  email          String         @unique
+  username       String         @unique
+  passwordHash   String
+  timezone       String         @default("Asia/Kolkata")
+  welcomeMessage String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  eventTypes     EventType[]
+  availability   Availability[]
+  meetings       Meeting[]      @relation("HostMeetings")
+
+  @@map("users")
+}
+
+model EventType {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  slug        String
+  duration    Int
+  description String?
+  color       String    @default("#006BFF")
+  location    String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  meetings    Meeting[]
+
+  @@unique([userId, slug])
+  @@map("event_types")
+}
+
+model Availability {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dayOfWeek Int
+  isEnabled Boolean  @default(false)
+  startTime String   @default("09:00")
+  endTime   String   @default("17:00")
+  timezone  String   @default("Asia/Kolkata")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, dayOfWeek])
+  @@map("availability")
+}
+
+enum MeetingStatus {
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+model Meeting {
+  id           String        @id @default(cuid())
+  hostId       String
+  host         User          @relation("HostMeetings", fields: [hostId], references: [id])
+  eventTypeId  String
+  eventType    EventType     @relation(fields: [eventTypeId], references: [id])
+  inviteeName  String
+  inviteeEmail String
+  date         String
+  startTime    String
+  endTime      String
+  duration     Int
+  timezone     String        @default("Asia/Kolkata")
+  status       MeetingStatus @default(CONFIRMED)
+  notes        String?
+  cancelReason String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@map("meetings")
+}
